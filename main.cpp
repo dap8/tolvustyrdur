@@ -52,11 +52,12 @@
 /* Definitions ---------------------------------------------------------------*/
 
 /* Number of movements per revolution. */
-#define MPR_1 4
+#define MPR_1 16
 
 /* Number of steps. */
-#define STEPS_1 (400 * 128)   /* 1 revolution given a 400 steps motor configured at 1/128 microstep mode. */
+#define STEPS_1 (25 * 128)   /* 1 revolution given a 400 steps motor configured at 1/128 microstep mode. */
 #define STEPS_2 (STEPS_1 * 2)
+ 
 
 /* Delay in milliseconds. */
 #define DELAY_1 1000
@@ -102,16 +103,16 @@ L6470_Init_t init[L6470DAISYCHAINSIZE] =
 
     /* Second Motor. */
     {
-        9.0,                           /* Motor supply voltage in V. */
-        400,                           /* Min number of steps per revolution for the motor. */
+        24.0,                           /* Motor supply voltage in V. */
+        25,                           /* Min number of steps per revolution for the motor. */
         1.7,                           /* Max motor phase voltage in A. */
         3.06,                          /* Max motor phase voltage in V. */
-        300.0,                         /* Motor initial speed [step/s]. */
-        500.0,                         /* Motor acceleration [step/s^2] (comment for infinite acceleration mode). */
-        500.0,                         /* Motor deceleration [step/s^2] (comment for infinite deceleration mode). */
-        992.0,                         /* Motor maximum speed [step/s]. */
+        5.0,                         /* Motor initial speed [step/s]. */
+        5.0,                         /* Motor acceleration [step/s^2] (comment for infinite acceleration mode). */
+        5.0,                         /* Motor deceleration [step/s^2] (comment for infinite deceleration mode). */
+        20.0,                         /* Motor maximum speed [step/s]. */
         0.0,                           /* Motor minimum speed [step/s]. */
-        602.7,                         /* Motor full-step speed threshold [step/s]. */
+        1000.7,                         /* Motor full-step speed threshold [step/s]. */
         3.06,                          /* Holding kval [V]. */
         3.06,                          /* Constant speed kval [V]. */
         3.06,                          /* Acceleration starting kval [V]. */
@@ -152,16 +153,16 @@ int main()
     /*----- Setting home and marke positions, getting positions, and going to positions. -----*/
 
     /* Printing to the console. */
-    printf("--> Setting home position.\r\n");
+    //printf("--> Setting home position.\r\n");
 
     /* Setting the home position. */
-    motors[0]->SetHome();
+    //motors[1]->SetHome();
 
     /* Waiting. */
-    wait_ms(DELAY_1);
+    //wait_ms(DELAY_1);
 
     /* Getting the current position. */
-    int position = motors[0]->GetPosition();
+    int position = motors[1]->GetPosition();
 
     /* Printing to the console. */
     printf("--> Getting the current position: %d\r\n", position);
@@ -170,255 +171,27 @@ int main()
     wait_ms(DELAY_1);
 
     /* Printing to the console. */
-    printf("--> Moving forward %d steps.\r\n", STEPS_1);
+    //printf("--> Moving forward %d steps.\r\n", STEPS_1);
+
 
     /* Moving. */
-    motors[0]->Move(StepperMotor::FWD, STEPS_1);
-
-    /* Waiting while active. */
-    motors[0]->WaitWhileActive();
-
-    /* Getting the current position. */
-    position = motors[0]->GetPosition();
+    ///motors[0]->Move(StepperMotor::FWD, STEPS_1);
     
-    /* Printing to the console. */
-    printf("--> Getting the current position: %d\r\n", position);
 
-    /* Printing to the console. */
-    printf("--> Marking the current position.\r\n");
-
-    /* Marking the current position. */
-    motors[0]->SetMark();
-
-    /* Waiting. */
-    wait_ms(DELAY_1);
-
-    /* Printing to the console. */
-    printf("--> Moving backward %d steps.\r\n", STEPS_2);
-
-    /* Moving. */
-    motors[0]->Move(StepperMotor::BWD, STEPS_2);
-
-    /* Waiting while active. */
-    motors[0]->WaitWhileActive();
-
-    /* Waiting. */
-    wait_ms(DELAY_1);
-
-    /* Getting the current position. */
-    position = motors[0]->GetPosition();
-    
-    /* Printing to the console. */
-    printf("--> Getting the current position: %d\r\n", position);
-
-    /* Waiting. */
-    wait_ms(DELAY_1);
-
-    /* Printing to the console. */
-    printf("--> Going to marked position.\r\n");
-
-    /* Going to marked position. */
-    motors[0]->GoMark();
-    
-    /* Waiting while active. */
-    motors[0]->WaitWhileActive();
-
-    /* Waiting. */
-    wait_ms(DELAY_1);
-
-    /* Getting the current position. */
-    position = motors[0]->GetPosition();
-    
-    /* Printing to the console. */
-    printf("--> Getting the current position: %d\r\n", position);
-
-    /* Waiting. */
-    wait_ms(DELAY_1);
-
-    /* Printing to the console. */
-    printf("--> Going to home position.\r\n");
-
-    /* Going to home position. */
-    motors[0]->GoHome();
-    
-    /* Waiting while active. */
-    motors[0]->WaitWhileActive();
-
-    /* Waiting. */
-    wait_ms(DELAY_1);
-
-    /* Getting the current position. */
-    position = motors[0]->GetPosition();
-    
-    /* Printing to the console. */
-    printf("--> Getting the current position: %d\r\n", position);
-
-    /* Waiting. */
-    wait_ms(DELAY_1);
-
-    /* Printing to the console. */
-    printf("--> Halving the microsteps.\r\n");
-
-    /* Halving the microsteps. */
-    init[0].step_sel = (init[0].step_sel > 0 ? init[0].step_sel -  1 : init[0].step_sel);
-    if (!motors[0]->SetStepMode((StepperMotor::step_mode_t) init[0].step_sel))
+    printf("Halving microsteps!!");
+    init[1].step_sel = (init[1].step_sel > 0 ? init[1].step_sel -  1 : init[1].step_sel);
+    if (!motors[1]->SetStepMode((StepperMotor::step_mode_t) init[1].step_sel))
         printf("    Step Mode not allowed.\r\n");
 
-    /* Waiting. */
-    wait_ms(DELAY_1);
 
-    /* Printing to the console. */
-    printf("--> Setting home position.\r\n");
-
-    /* Setting the home position. */
-    motors[0]->SetHome();
-
-    /* Waiting. */
-    wait_ms(DELAY_1);
-
-    /* Getting the current position. */
-    position = motors[0]->GetPosition();
-    
-    /* Printing to the console. */
-    printf("--> Getting the current position: %d\r\n", position);
-
-    /* Waiting. */
-    wait_ms(DELAY_1);
-
-    /* Printing to the console. */
-    printf("--> Moving forward %d steps.\r\n", STEPS_1);
-
-    /* Moving. */
-    motors[0]->Move(StepperMotor::FWD, STEPS_1);
+    printf("--> Taking a tiny step forward");
+    motors[1]->Move(StepperMotor::FWD, STEPS_1);
 
     /* Waiting while active. */
-    motors[0]->WaitWhileActive();
+    motors[1]->WaitWhileActive();
 
     /* Getting the current position. */
-    position = motors[0]->GetPosition();
+    position = motors[1]->GetPosition();
     
-    /* Printing to the console. */
-    printf("--> Getting the current position: %d\r\n", position);
 
-    /* Printing to the console. */
-    printf("--> Marking the current position.\r\n");
-
-    /* Marking the current position. */
-    motors[0]->SetMark();
-
-    /* Waiting. */
-    wait_ms(DELAY_2);
-
-
-    /*----- Running together for a certain amount of time. -----*/
-
-    /* Printing to the console. */
-    printf("--> Running together for %d seconds.\r\n", DELAY_3 / 1000);
-
-    /* Preparing each motor to perform a run at a specified speed. */
-    for (int m = 0; m < L6470DAISYCHAINSIZE; m++)
-        motors[m]->PrepareRun(StepperMotor::BWD, 400);
-
-    /* Performing the action on each motor at the same time. */
-    x_nucleo_ihm02a1->PerformPreparedActions();
-
-    /* Waiting. */
-    wait_ms(DELAY_3);
-
-
-    /*----- Increasing the speed while running. -----*/
-
-    /* Preparing each motor to perform a run at a specified speed. */
-    for (int m = 0; m < L6470DAISYCHAINSIZE; m++)
-        motors[m]->PrepareGetSpeed();
-
-    /* Performing the action on each motor at the same time. */
-    uint32_t* results = x_nucleo_ihm02a1->PerformPreparedActions();
-
-    /* Printing to the console. */
-    printf("    Speed: M1 %d, M2 %d.\r\n", results[0], results[1]);
-
-    /* Printing to the console. */
-    printf("--> Doublig the speed while running again for %d seconds.\r\n", DELAY_3 / 1000);
-
-    /* Preparing each motor to perform a run at a specified speed. */
-    for (int m = 0; m < L6470DAISYCHAINSIZE; m++)
-        motors[m]->PrepareRun(StepperMotor::BWD, results[m] << 1);
-
-    /* Performing the action on each motor at the same time. */
-    results = x_nucleo_ihm02a1->PerformPreparedActions();
-
-    /* Waiting. */
-    wait_ms(DELAY_3);
-
-    /* Preparing each motor to perform a run at a specified speed. */
-    for (int m = 0; m < L6470DAISYCHAINSIZE; m++)
-        motors[m]->PrepareGetSpeed();
-
-    /* Performing the action on each motor at the same time. */
-    results = x_nucleo_ihm02a1->PerformPreparedActions();
-
-    /* Printing to the console. */
-    printf("    Speed: M1 %d, M2 %d.\r\n", results[0], results[1]);
-
-    /* Waiting. */
-    wait_ms(DELAY_1);
-
-
-    /*----- Hard Stop. -----*/
-
-    /* Printing to the console. */
-    printf("--> Hard Stop.\r\n");
-
-    /* Preparing each motor to perform a hard stop. */
-    for (int m = 0; m < L6470DAISYCHAINSIZE; m++)
-        motors[m]->PrepareHardStop();
-
-    /* Performing the action on each motor at the same time. */
-    x_nucleo_ihm02a1->PerformPreparedActions();
-
-    /* Waiting. */
-    wait_ms(DELAY_2);
-
-
-    /*----- Doing a full revolution on each motor, one after the other. -----*/
-
-    /* Printing to the console. */
-    printf("--> Doing a full revolution on each motor, one after the other.\r\n");
-
-    /* Doing a full revolution on each motor, one after the other. */
-    for (int m = 0; m < L6470DAISYCHAINSIZE; m++)
-        for (int i = 0; i < MPR_1; i++)
-        {
-            /* Computing the number of steps. */
-            int steps = (int) (((int) init[m].fullstepsperrevolution * pow(2.0f, init[m].step_sel)) / MPR_1);
-
-            /* Moving. */
-            motors[m]->Move(StepperMotor::FWD, steps);
-            
-            /* Waiting while active. */
-            motors[m]->WaitWhileActive();
-
-            /* Waiting. */
-            wait_ms(DELAY_1);
-        }
-
-    /* Waiting. */
-    wait_ms(DELAY_2);
-
-
-    /*----- High Impedance State. -----*/
-
-    /* Printing to the console. */
-    printf("--> High Impedance State.\r\n");
-
-    /* Preparing each motor to set High Impedance State. */
-    for (int m = 0; m < L6470DAISYCHAINSIZE; m++)
-        motors[m]->PrepareHardHiZ();
-
-    /* Performing the action on each motor at the same time. */
-    x_nucleo_ihm02a1->PerformPreparedActions();
-
-    /* Waiting. */
-    wait_ms(DELAY_2);
 }
