@@ -1,11 +1,25 @@
 extends layout
 
 block content
-  h1= title
-  div.title
-    p #{title}
-  div.diary
-    h6
-    p Byrjað var á því að rissa upp hugmyndir um hvernig á að leysa vandamálið og hver meðlimur kom með hugmyndir.
-    img(src="./local/image.png")
-    p
+  .header Dagbók
+  .diary
+    .entry
+      p Byrjað var á því að rissa upp hugmyndir um hvernig á að leysa vandamálið og hver meðlimur kom með hugmyndir.
+      img(src='http://imgur.com/vyMh4Zh.png')
+    .entry
+      p Ákveðið var að nota skrefamótor úr gömlum prentara og L6470 mótorstýringu, notast var við library í mbed fyrir mótorstýring
+      una
+      img(src='http://imgur.com/tGaZu4W.png')
+    .entry 
+      p Notast var við forritið linkage til að setja upp tölvumódel og þá kom í ljós að upprunnalega hönnun var ekki góð og var því gerð ný hönnun
+      img(src='http://imgur.com/dnGtUAI.png')
+    .entry 
+      p Ferillinn á þessu kerfi var ekki nógu brattur til þess að skeiðin kæmist ofan í skálina, því var búið til nýtt kerfi
+      img(src='http://imgur.com/aRiZt6X.png')
+
+
+Farið var í það að finna library fyrir mótorstýringuna og að modela arminn í linkage
+
+Library fyrir mótorstýringu var fundið
+Gert var test með aflgjafa að snúa stepmotor, það gekk notast var við 12v
+
