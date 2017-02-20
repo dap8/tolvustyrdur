@@ -50,9 +50,17 @@ body {
   align-items:center;
   justify-content: center;  
   color: white;
-  padding-top: 3em;  
+  padding-top: 3em;
+  max-width: 450px;  
+}
+
+.entry img {
+  min-width: 450px;
+  max-width: 450px;
+  height: auto;
+  
 }
 
 .entry p {
-  width: 80%;
+  width: 450px;
 }
