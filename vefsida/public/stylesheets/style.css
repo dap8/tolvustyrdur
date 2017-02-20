@@ -37,13 +37,22 @@ body {
 	border: none;
 }
 
-.title{
-
-}
 .diary{
   display:flex;
   flex-direction: column;
   align-items:center;
-  justify-content: center;
+  justify-content: center;  
+}
 
+.entry {
+  display:flex;
+  flex-direction: column;
+  align-items:center;
+  justify-content: center;  
+  color: white;
+  padding-top: 3em;  
+}
+
+.entry p {
+  width: 80%;
 }
