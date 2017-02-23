@@ -19,6 +19,19 @@ body {
   margin: 0 auto 0 auto;
 }
 
+.youtube {
+  width: 50vw;
+  height: 60vh;
+  margin: 0 auto 0 auto;
+  padding-top: 3em;
+}
+
+.youtube iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
 .stream {
 	height: 100%;
 }
