@@ -6,28 +6,30 @@ let ctx = canvas.getContext("2d");
 ////////////////// Car stuff //////////////////////
 
 function Car(x, y, rot, name){
+
 	this.NAME = name;
 	this.X = x;
 	this.Y = y;
 	this.ROT = rot;
-  this.MOTOR_1_SPEED = 0;
-  this.MOTOR_2_SPEED = 0;
-  this.MOTOR_1_DIRECTION = 1; // 1 or -1
-  this.MOTOR_2_DIRECTION = 1; // 1 or -1
+  	this.MOTOR_1_SPEED = 0;
+  	this.MOTOR_2_SPEED = 0;
+  	this.MOTOR_1_DIRECTION = 1; // 1 or -1
+  	this.MOTOR_2_DIRECTION = 1; // 1 or -1
 	this.init();
 }
 
 let Direction = {
 	FORWARD : 'F',
 	RIGHT: 'R',
-	LEFT: 'L'
+	LEFT: 'L',
+	BACKWARD: 'B'
 }
 
 Car.prototype.init = function() {
 	console.log(this.name + " ready to go!");
-	this.SharpSensor_1 = new SharpSensor(Direction.FORWARD);
-	this.SharpSensor_2 = new SharpSensor(Direction.RIGHT);
-	this.SharpSensor_3 = new SharpSensor(Direction.LEFT);
+	this.SharpSensor_1 = new SharpSensor(Direction.FORWARD, this.rot);
+	this.SharpSensor_2 = new SharpSensor(Direction.RIGHT, this.rot);
+	this.SharpSensor_3 = new SharpSensor(Direction.LEFT, this.rot);
   this.GyroSensor = new GyroSensor();
 }
 
@@ -63,9 +65,12 @@ Car.prototype.render = function(ctx) {
 
 /////////////// Sharp sensor stuff ////////////////////
 
-function SharpSensor(direction){
+function SharpSensor(direction,rotation, x, y){
 	this.init();
 	this.direction = direction;
+	this.rotation = rotation;
+	this.x = x;
+	this.y = y;
 }
 
 SharpSensor.prototype.init = function() {
@@ -74,9 +79,13 @@ SharpSensor.prototype.init = function() {
 
 SharpSensor.prototype.check = function() {
 	let obstacles = Maze.walls;
+	
 	switch(expression) {
 	    case Direction.RIGHT:
-	        
+	        for(let i = 0; i<obstacles.length; i++)
+	        {
+
+	        }
 	        break;
 	    case Direction.LEFT:
 	        
@@ -86,6 +95,16 @@ SharpSensor.prototype.check = function() {
 	        console.log('invalid direction');
 	}
 	
+}
+
+SharpSensor.prototype.findDistance() {
+
+	let amInsideWall;
+	
+}
+
+SharpSensor.prototype.update() {
+
 }
 
 SharpSensor.prototype.setPosition = function() {
