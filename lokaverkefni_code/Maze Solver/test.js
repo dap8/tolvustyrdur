@@ -1,22 +1,34 @@
 
 // Canvas.
-var ctx = document.getElementById("canvas");
+let canvas = document.getElementById("canvas");
+let ctx = canvas.getContext("2d");
 
 ////////////////// Car stuff //////////////////////
 
 function Car(x, y, rot, name){
-	this.name = name;
-	this.x = x;
-	this.y = y;
-	this.rot = rot;
+	this.NAME = name;
+	this.X = x;
+	this.Y = y;
+	this.ROT = rot;
+  this.MOTOR_1_SPEED = 0;
+  this.MOTOR_2_SPEED = 0;
+  this.MOTOR_1_DIRECTION = 1; // 1 or -1
+  this.MOTOR_2_DIRECTION = 1; // 1 or -1
 	this.init();
+}
+
+let Direction = {
+	FORWARD : 'F',
+	RIGHT: 'R',
+	LEFT: 'L'
 }
 
 Car.prototype.init = function() {
 	console.log(this.name + " ready to go!");
-	this.motor_1 = new Motor();
-	this.motor_2 = new Motor();
-	this.SharpSensor_1 = new SharpSensor
+	this.SharpSensor_1 = new SharpSensor(Direction.FORWARD);
+	this.SharpSensor_2 = new SharpSensor(Direction.RIGHT);
+	this.SharpSensor_3 = new SharpSensor(Direction.LEFT);
+  this.GyroSensor = new GyroSensor();
 }
 
 Car.prototype.move = function() {
@@ -24,7 +36,7 @@ Car.prototype.move = function() {
 }
 
 Car.prototype.setRotation = function() {
-
+	
 }
 
 Car.prototype.setPosition = function() {
@@ -32,35 +44,19 @@ Car.prototype.setPosition = function() {
 }
 
 Car.prototype.update = function() {
-	this.move();
+	this.checkSensors();
+  this.runMotors();
+  this.move();
+}
+
+Car.prototype.checkSensors = function() {
+  
 }
 
 Car.prototype.render = function(ctx) {
 	// RENDER CAR //
-}
-
-///////////////////////////////////////////////////
-
-//////////////// Motor stuff //////////////////////
-
-function Motor() {
-	this.init();
-}
-
-Motor.prototype.init = function() {
-	console.log("Motor started!");
-}
-
-Motor.prototype.power = function(speed, direction) {
-	
-}
-
-Motor.prototype.setSpeed = function(speed) {
-	this.speed = speed;
-}
-
-Motor.prototype.setDirection = function(direction) {
-	this.direction = direction;
+  ctx.rect(20,20,150,100);
+	ctx.stroke();
 }
 
 /////////////////////////////////////////////////
@@ -69,6 +65,7 @@ Motor.prototype.setDirection = function(direction) {
 
 function SharpSensor(direction){
 	this.init();
+	this.direction = direction;
 }
 
 SharpSensor.prototype.init = function() {
@@ -76,6 +73,18 @@ SharpSensor.prototype.init = function() {
 }
 
 SharpSensor.prototype.check = function() {
+	let obstacles = Maze.walls;
+	switch(expression) {
+	    case Direction.RIGHT:
+	        
+	        break;
+	    case Direction.LEFT:
+	        
+	        break;
+	    case Direction.FORWARD:
+	    default:
+	        console.log('invalid direction');
+	}
 	
 }
 
@@ -86,6 +95,8 @@ SharpSensor.prototype.setPosition = function() {
 SharpSensor.prototype.setRotation = function() {
 	
 }
+
+
 
 /////////////////////////////////////////////////
 
@@ -116,6 +127,10 @@ GyroSensor.prototype.setRotation = function() {
 /////////////// Wall stuff //////////////////////
 
 function Wall(x1, y1, x2, y2) {
+  this.x1 = x1;
+  this.y1 = y1;
+  this.x2 = x2;
+	this.y2 = y2;  
 
 }
 
@@ -124,7 +139,16 @@ Wall.prototype.render = function(ctx) {
 }
 
 
+function Maze(walls) {
+	this.walls = walls;
+}
 
 
-var car_1 = new Car(1,2,3);
+
+let walls = [new Wall(20,20,20,30), new Wall(10,10,10,30)];
+
+
+let maze = new Maze(walls);
+let car_1 = new Car(1,2,3,"Pétur Ofurbíll");
+
 car_1.move();
