@@ -159,7 +159,7 @@ Car.prototype.checkSensors = function() {
   this.sharpSensors.forEach(function(sharpsensor) {
   	let distance = sharpsensor.check();
   	let direction = sharpsensor.direction;
-  	distances.push({distance : distance, direction : direction});
+  	distances.push({value : distance, direction : direction});
   });
 
   let gyroVal = this.GyroSensor.check();
@@ -167,6 +167,27 @@ Car.prototype.checkSensors = function() {
 }
 
 Car.prototype.decideNextMove = function(distances, gyroVal) {
+	for(let distance in distances)
+	{
+		switch(distance.direction) {
+		    case Direction.RIGHT:
+		    	if(distance.value > MAX_DISTANCE) this.turn(Direction.RIGHT);
+		        break;
+		    case Direction.LEFT:
+		        
+		        break;
+		    case Direction.FORWARD:
+
+		    	break;
+		    default:
+		        console.log('invalid direction');
+		        break;
+		}
+
+	}
+}
+
+Car.prototype.turn = function(direction) {
 
 }
 
