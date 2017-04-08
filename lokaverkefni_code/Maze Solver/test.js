@@ -120,30 +120,6 @@ Car.prototype.render = function(ctx) {
   	ctx.lineTo(this.x, this.y - this.height/2);
 }
 
-///////////////////////////////////////////////////
-
-//////////////// Motor stuff //////////////////////
-
-function Motor() {
-	this.init();
-}
-
-Motor.prototype.init = function() {
-	console.log("Motor started!");
-}
-
-Motor.prototype.power = function(speed, direction) {
-	
-}
-
-Motor.prototype.setSpeed = function(speed) {
-	this.speed = speed;
-}
-
-Motor.prototype.setDirection = function(direction) {
-	this.direction = direction;
-}
-
 /////////////////////////////////////////////////
 
 /////////////// Sharp sensor stuff ////////////////////
