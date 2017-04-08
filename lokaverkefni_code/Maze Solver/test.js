@@ -254,3 +254,4 @@ function Maze(walls) {
 let mSimulation = new Simulation(60);
 mSimulation.init();
 
+const maze = mSimulation.maze;
