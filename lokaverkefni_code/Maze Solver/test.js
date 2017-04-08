@@ -12,7 +12,8 @@ canvas.addEventListener("click", (e) => {simulation_paused = !simulation_paused}
 
 function Simulation(fps) {
   	this.delay = 1000 / fps;
-  	this.maze = null;
+  	this.walls = [new Wall(20,20,20,30), new Wall(10,10,10,30)];
+  	this.maze = new Maze(this.walls);
   	this.cars = [];
 }
 
@@ -253,5 +254,3 @@ function Maze(walls) {
 let mSimulation = new Simulation(60);
 mSimulation.init();
 
-let walls = [new Wall(20,20,20,30), new Wall(10,10,10,30)];
-let maze = new Maze(walls);
