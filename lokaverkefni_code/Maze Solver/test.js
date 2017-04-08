@@ -4,17 +4,63 @@ let canvas = document.getElementById("canvas");
 let ctx = canvas.getContext("2d");
 var simulation_paused = false;
 
-// Add an onClick listener to the canvas to be able to pause the game
-canvas.addEventListener("click", (e) => {simulation_paused = !simulation_paused});
+let mouse = {
+	isDown: false,
+	x: 0,
+	y: 0,
+	last_x: 0,
+	last_y: 0,
+}
 
+// Add some listeners
+canvas.addEventListener("mousedown", (e) => {
+	mouse.isDown = true;
+	grabWall(mouse.x, mouse.y);
+});
 
+canvas.addEventListener("mousemove", (e) => {
+	let rect = canvas.getBoundingClientRect();
+	mouse.last_x = mouse.x;
+	mouse.last_y = mouse.y;
+	mouse.x = e.clientX - rect.left;
+	mouse.y = e.clientY - rect.top;
+	if(!mouse.isDown || mSimulation.grabbedWall == null) return;
+	let x_movement = mouse.x - mouse.last_x;
+	let y_movement = mouse.y - mouse.last_y;
+	mSimulation.grabbedWall.move(x_movement, y_movement);
+});
+
+canvas.addEventListener("mouseup", (e) => {
+	mouse.isDown = false;
+	mSimulation.grabbedWall = null;
+});
+
+window.addEventListener("keypress", (e) => {
+	switch(e.keyCode){
+		case 112: // P
+			simulation_paused = !simulation_paused
+			console.log("Simulation_paused: " + simulation_paused);
+	}
+}, false);
+	
 /////////////////// Game engine stuff ///////////////////
 
 function Simulation(fps) {
   	this.delay = 1000 / fps;
-  	this.walls = [new Wall(20,20,20,30), new Wall(10,10,10,30)];
+  	this.walls = [new Wall(100,100,150,"vertical"),
+  					new Wall(200,200,300,"horizontal"),
+  					new Wall(600,400,140,"vertical"),
+  					new Wall(800,600,150,"horizontal"),
+  					new Wall(350,350,150,"vertical"),
+  					new Wall(400,250,300,"horizontal"),
+  					new Wall(700,450,200,"vertical"),
+  					new Wall(430,150,220,"vertical"),
+  					new Wall(50,500,250,"horizontal"),
+  					new Wall(570,330,"vertical"),
+  					new Wall(120,490,320,"horizontal")];
   	this.maze = new Maze(this.walls);
   	this.cars = [];
+  	this.grabbedWall = null;
 }
 
 Simulation.prototype.init = function() {
@@ -42,13 +88,16 @@ Simulation.prototype.update = function() {
 Simulation.prototype.render = function(ctx) {
 	if(simulation_paused) return;
 
+	// Clear the canvas
+  	ctx.clearRect(0, 0, canvas.width, canvas.height);
+
  	// Render all the cars
   	for(car of this.cars){
   		car.render(ctx);
   	}
 
   	// Render the maze
-  	//this.maze.render(ctx);
+  	this.maze.render(ctx);
 
   	// Fill and draw everything
   	ctx.stroke();
@@ -208,26 +257,66 @@ GyroSensor.prototype.setRotation = function() {
 
 /////////////// Wall stuff //////////////////////
 
-function Wall(x1, y1, x2, y2) {
-  	this.x1 = x1;
-  	this.y1 = y1;
-  	this.x2 = x2;
-	this.y2 = y2;  
+function Wall(x, y, height, direction) {
+  	this.x = x;
+  	this.y = y;
+  	if(direction == "horizontal") {
+  		this.width = height;
+  		this.height = 20;
+  	} else {
+  		this.width = 20;
+  		this.height = height;
+  	}
+  	this.direction = direction;
 }
+
+Wall.prototype.move = function(x_movement, y_movement) {
+	this.x = this.x + x_movement;
+	this.y = this.y + y_movement;
+}
+
 
 Wall.prototype.render = function(ctx) {
 	// RENDER WALL //
+	ctx.fillStyle = "black";
+	ctx.fillRect(this.x - this.width/2, this.y - this.height/2, this.width, this.height);
 }
 
 /////////////////////////////////////////////////
 
-///////////// Start the simulation //////////////
+////////////// Maze stuff //////////////////////
 
 function Maze(walls) {
 	this.walls = walls;
 }
 
+Maze.prototype.render = function(ctx) {
+	for(wall of this.walls) {
+		wall.render(ctx);
+	}
+}
+
+////////////////////////////////////////////////
+
+///////////// Start the simulation //////////////
+
 let mSimulation = new Simulation(60);
 mSimulation.init();
+
+////////////////// Mod stuff ////////////////////////////
+
+function grabWall(x, y){
+	for(wall of mSimulation.walls) {
+		if(x > wall.x - wall.width/2 && x < wall.x + wall.width/2 &&
+		   y > wall.y - wall.height/2 && y < wall.y + wall.height/2){
+			mSimulation.grabbedWall = wall;
+			console.log("what's in the box???");
+		return;
+		}
+	}
+	mSimulation.grabbedWall = null;
+}
+
+/////////////////////////////////////////////////////////
 
 const maze = mSimulation.maze;
