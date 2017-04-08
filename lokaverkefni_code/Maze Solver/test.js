@@ -1,15 +1,8 @@
 
 // Canvas.
-<<<<<<< .mine
 let canvas = document.getElementById("canvas");
 let ctx = canvas.getContext("2d");
 var simulation_paused = false;
-||||||| .r17
-var ctx = document.getElementById("canvas");
-=======
-let canvas = document.getElementById("canvas");
-let ctx = canvas.getContext("2d");
->>>>>>> .r19
 
 // Add an onClick listener to the canvas to be able to pause the game
 canvas.addEventListener("click", (e) => {simulation_paused = !simulation_paused});
@@ -167,11 +160,12 @@ SharpSensor.prototype.init = function() {
 }
 
 SharpSensor.prototype.check = function() {
-	let obstacles = Maze.walls;
+	let obstacles = maze.walls;
+	let expression = this.direction;
 	
 	switch(expression) {
 	    case Direction.RIGHT:
-	        for(let i = 0; i<obstacles.length; i++)
+	        for(let i = 0; i < obstacles.length; i++)
 	        {
 
 	        }
@@ -180,19 +174,22 @@ SharpSensor.prototype.check = function() {
 	        
 	        break;
 	    case Direction.FORWARD:
+
+	    	break;
 	    default:
 	        console.log('invalid direction');
+	        break;
 	}
 	
 }
 
-SharpSensor.prototype.findDistance() {
+SharpSensor.prototype.findDistance = function() {
 
 	let amInsideWall;
 	
 }
 
-SharpSensor.prototype.update() {
+SharpSensor.prototype.update = function() {
 
 }
 
