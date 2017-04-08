@@ -117,8 +117,8 @@ function Car(x, y, rot, name){
 	this.x = x;
 	this.y = y;
 	this.rot = rot;
-  	this.MOTOR_1_SPEED = 0;
-  	this.MOTOR_2_SPEED = 0;
+  	this.MOTOR_1_SPEED = 1;
+  	this.MOTOR_2_SPEED = 1;
   	this.MOTOR_1_DIRECTION = 1; // 1 or -1
   	this.MOTOR_2_DIRECTION = 1; // 1 or -1
 	this.init();
@@ -133,10 +133,8 @@ let Direction = {
 
 Car.prototype.init = function() {
 	console.log(this.name + " ready to go!");
-	this.SharpSensor_1 = new SharpSensor(Direction.FORWARD, this.rot);
-	this.SharpSensor_2 = new SharpSensor(Direction.RIGHT, this.rot);
-	this.SharpSensor_3 = new SharpSensor(Direction.LEFT, this.rot);
-  	this.GyroSensor = new GyroSensor();
+    this.sharpSensors = [new SharpSensor(Direction.FORWARD, this.rot), new SharpSensor(Direction.RIGHT,this.rot), new SharpSensor(Direction.LEFT,this.rot)];	
+  	this.GyroSensor = new GyroSensor(this.rot);
 }
 
 Car.prototype.move = function() {
@@ -153,12 +151,23 @@ Car.prototype.setPosition = function() {
 
 Car.prototype.update = function() {
 	this.checkSensors();
-  	//this.runMotors();
   	this.move();
 }
 
 Car.prototype.checkSensors = function() {
-  
+  let distances = [];
+  this.sharpSensors.forEach(function(sharpsensor) {
+  	let distance = sharpsensor.check();
+  	let direction = sharpsensor.direction;
+  	distances.push({distance : distance, direction : direction});
+  });
+
+  let gyroVal = this.GyroSensor.check();
+  this.decideNextMove(distances,gyroVal);
+}
+
+Car.prototype.decideNextMove = function(distances, gyroVal) {
+
 }
 
 Car.prototype.render = function(ctx) {
@@ -242,7 +251,7 @@ GyroSensor.prototype.init = function() {
 }
 
 GyroSensor.prototype.check = function() {
-	
+	return 1;	
 }
 
 GyroSensor.prototype.setPosition = function() {
@@ -288,6 +297,8 @@ Wall.prototype.render = function(ctx) {
 
 function Maze(walls) {
 	this.walls = walls;
+	this.COLLISION_DISTANCE = 5;
+	this.MAX_DISTANCE = 20;
 }
 
 Maze.prototype.render = function(ctx) {
