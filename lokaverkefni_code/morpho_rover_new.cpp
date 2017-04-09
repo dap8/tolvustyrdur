@@ -6,41 +6,34 @@
 
 const int COLLISION_DISTANCE = 5; //This variables defines the distance that determines whether there is about to be a collision
 
-const int MOTOR1_ID = 0;
-const int MOTOR2_ID = 1;
+const int CRUISING_SPEED = 128;
 
-struct directions
-{
-   char FORWARD = 'f';
-   char RIGHT = 'r';
-   char LEFT = 'l';
-};
+const boolean RIGHT = true;
+const boolean LEFT = false;
 
-typedef struct directions DIRECTIONS;
-DIRECTIONS aDirections;
+//DELAYS
+const int TURNING_DELAY = 200;
+const int TURNING_DURATION = 350;
+const int PREPARE_DELAY = 700;
 
-const char CURRENT_DIRECTION = Direction.FORWARD;
+//MOTOR1(LEFT) VALUES
+const int MOTOR1_ID = 0; //LEFT MOTOR
+const int MOTOR1_FORWARD = 0;
+const int MOTOR1_BACKWARD = 1;
 
-struct motor1 
-{
-    int FORWARD = 0;
-    int BACKWARD = 1;
-    
-}
+//MOTOR2(RIGHT) VALUES
+const int MOTOR2_ID = 1; // RIGHT MOTOR
+const int MOTOR2_FORWARD = 1;
+const int MOTOR2_BACKWARD = 0;
 
-typedef struct motor1 MOTOR1;
-  
-struct MOTOR2 
-{
-    int FORWARD = 1;
-    int BACKWARD = 0;
-    
-}
+//SENSOR SIDES
+const int SIDE_FRONT = 0;
+const int SIDE_RIGHT = 1;
+const int SIDE_LEFT = 2;
 
-typedef struct motor2 MOTOR2;
-
-MOTOR1 aMotor1;
-MOTOR2 aMotor2;
+//DIRECTIONS
+const int DIRECTION_FORWARD = 0;
+const int DIRECTION_BACKWARD = 1;
 
 
 int STBY = 10; //standby
@@ -69,38 +62,61 @@ void setup(){
     Serial.begin(9600); // start the serial port
 }
 
-void loop(){
-  float volts = analogRead(sensor)*0.0048828125;  // value from sensor * (5/1024)
-  int distance = 13*pow(volts, -1); // worked out from datasheet graph
-  // int distance = check(aDirections.FORWARD);
-  float volts2 = analogRead(sensor2)*0.0048828125;  // value from sensor * (5/1024)
-  int distance2 = 13*pow(volts2, -1); // worked out from datasheet graph
-  // int distance = check(aDirections.RIGHT);
-  float volts3 = analogRead(sensor3)*0.0048828125;  // value from sensor * (5/1024)
-  int distance3 = 13*pow(volts3, -1); // worked out from datasheet graph
-  // int distance = check(aDirections.LEFT);
+float* stabilize(int dist_left, int dist_right){
+  /*Serial.println("dist left: ");
+  Serial.println(dist_left);
+  Serial.println("dist right: ");
+  Serial.println(dist_right);*/
+  if(dist_left > 30 || dist_left < 1) dist_left = 30;
+  if(dist_right > 30 || dist_right < 1) dist_right = 30;
+  float* stabilization_factors = new float[2];
+  float total_dist = dist_left + dist_right;
+  float left_proportion = dist_left / total_dist;
+  float right_proportion = dist_right / total_dist;
 
-  if (distance2 > 10){
-    move(0,128,0);
-    move(1,128,1);
-    delay(200);
-    stop();
-    delay(500);
-    move(0,128,1);
-    move(1,128,1);
-    delay(350);
-    stop();
+  /*Serial.println("total dist: ");
+  Serial.println(total_dist);
+  Serial.println("right proportion: ");
+  Serial.println(right_proportion);
+  Serial.println("left proportion: ");
+  Serial.println(left_proportion);*/
+  if(dist_left > dist_right) {
+    float x = (1 / left_proportion) * right_proportion;
+    if(x < 0.75) x = 0.75;
+    stabilization_factors[0] = x;
+    stabilization_factors[1] = 1;
+  } else {
+    float y = (1 / right_proportion) * left_proportion;
+    if(y < 0.75) y = 0.75;
+    stabilization_factors[0] = 1;
+    stabilization_factors[1] = y;
   }
 
-  move(0,128,0);
-  move(1,128,1);
-  delay(350);
-  stop();
-  delay(1000);
-  
-  
+  return stabilization_factors;
 }
 
+void loop(){
+  int distance_forward = check(SIDE_FRONT);
+  int distance_right = check(SIDE_RIGHT);
+  int distance_left = check(SIDE_LEFT);
+  
+  float* stabilization_factors = stabilize(distance_left, distance_right);
+  /*Serial.println("motor1 factor: ");
+  Serial.println(stabilization_factors[0]);
+  Serial.println("motor2 factor: ");
+  Serial.println(stabilization_factors[1]);*/
+  //delay(1000);
+  int motor_2_speed = floor(CRUISING_SPEED * stabilization_factors[0]);
+  int motor_1_speed = floor(CRUISING_SPEED * stabilization_factors[1]);
+  
+  move(0, motor_1_speed, MOTOR1_FORWARD);
+  move(1, motor_2_speed, MOTOR2_FORWARD);
+  //turn(RIGHT);
+  delay(25);
+}
+
+float measure( int side){
+}
 
 void move(int motor, int speed, int direction){
 //Move specific motor at speed and direction
@@ -114,11 +130,10 @@ void move(int motor, int speed, int direction){
   boolean inPin2 = HIGH;
 
   if(direction == 1){
-    inPin1 = HIGH;
-    inPin2 = LOW;
+   inPin1 = HIGH;
+   inPin2 = LOW;
   }
-
-  if(motor == 1){
+  if(motor == MOTOR2_ID){
     digitalWrite(AIN1, inPin1);
     digitalWrite(AIN2, inPin2);
     analogWrite(PWMA, speed);
@@ -134,14 +149,40 @@ void stop(){
   digitalWrite(STBY, LOW); 
 }
 
+/**
+* Does a left or right turn
+* 
+* @param {boolean} right - contains true if you are supposed to turn right, false if you are supposed to turn left
+*/
 
-void chooseDirection()
-{
-  int rightDist = check(aDirections.RIGHT);
-  int frontDist = check(aDirections.FRONT);
-  int leftDist = check(aDirections.LEFT);
+void turn(boolean right){
+  //Keyra áfram í einhvern x tíma
+  prepareForTurn(CRUISING_SPEED);
+  if(right)
+  {
+    delay(TURNING_DELAY);
+    move(MOTOR1_ID,CRUISING_SPEED,MOTOR1_BACKWARD);
+    move(MOTOR2_ID,CRUISING_SPEED,MOTOR2_FORWARD);
+    delay(TURNING_DURATION);
+    stop();
+  }
+  
+  else {
+    delay(TURNING_DELAY);
+    move(MOTOR1_ID,CRUISING_SPEED,MOTOR1_FORWARD);
+    move(MOTOR2_ID,CRUISING_SPEED,MOTOR2_BACKWARD);
+    delay(TURNING_DURATION);
+    stop();
+  }
+  delay(TURNING_DELAY);
 
-  //char choice = determineBestDirection(rightDist,frontDist,leftDist);  
+}
+
+void prepareForTurn(int speed){   
+    move(MOTOR1_ID,speed,MOTOR1_FORWARD);
+    move(MOTOR2_ID,speed,MOTOR2_FORWARD);
+    delay(PREPARE_DELAY);
+    stop();
 }
 
 /**
@@ -150,33 +191,12 @@ void chooseDirection()
 * @param {char} side - the side you want to check for, 'f' for front, 'r' for right, 'l' for left
 * @returns {int} - the distance to an obstacle in cm
 */
-
+/*
 char determineBestDirection(int right, int front, int left)
 {
-  if(right >= COLLISION_DISTANCE) return aDirections.RIGHT;
-  if(front >= COLLISION_DISTANCE) return aDirections.FRONT;
-  return aDirections.LEFT;
-}
-
-/*
-void move(char direction)
-{
-    switch (direction) {
-    case Directions.RIGHT:
-      //Do a 90 degree turn to the right and then move forward x cm
-      break;
-    case Directions.FRONT:
-      //Move forward x cm
-      break;
-    case Directions.LEFT:
-      //Do a 90 degree turn to the left and then move forward x cm
-      break;
-    default: 
-      // if nothing else matches, do the default
-      // default is optional
-    break;
-  }
-  
+  if(right >= COLLISION_DISTANCE) return aSides.RIGHT;
+  if(front >= COLLISION_DISTANCE) return aSides.FRONT;
+  return aSides.LEFT;
 }
 
 */
@@ -184,20 +204,21 @@ void move(char direction)
 /**
 * Checks the distance to a obstacle on a given side
 * 
-* @param {char} side - the side you want to check for, 'f' for front, 'r' for right, 'l' for left
+* @param {char} side - the side you want to check for, '0' for front, '1' for right, '2' for left
 * @returns {int} - the distance to an obstacle in cm
 */
-int check(char side)
+int check(int side)
 {
+  float volts;
   switch (side) {
-    case aDirections.RIGHT:
-      float volts = analogRead(sensor_right)*0.0048828125;
+    case SIDE_RIGHT:
+      volts = analogRead(sensor_right)*0.0048828125;
       break;
-    case aDirections.FRONT:
-      float volts = analogRead(sensor_front)*0.0048828125;
+    case SIDE_FRONT:
+      volts = analogRead(sensor_front)*0.0048828125;
       break;
-    case aDirections.LEFT:
-      float volts = analogRead(sensor_left)*0.0048828125;
+    case SIDE_LEFT:
+      volts = analogRead(sensor_left)*0.0048828125;
       break;
     default: 
       // if nothing else matches, do the default
