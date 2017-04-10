@@ -6,7 +6,9 @@
 
 const int COLLISION_DISTANCE = 5; //This variables defines the distance that determines whether there is about to be a collision
 
-const int CRUISING_SPEED = 128;
+const int CRUISING_SPEED = 96;
+int MOTOR1_SPEED = CRUISING_SPEED;
+int MOTOR2_SPEED = CRUISING_SPEED;
 
 const boolean RIGHT = true;
 const boolean LEFT = false;
@@ -63,10 +65,7 @@ void setup(){
 }
 
 float* stabilize(int dist_left, int dist_right){
-  /*Serial.println("dist left: ");
-  Serial.println(dist_left);
-  Serial.println("dist right: ");
-  Serial.println(dist_right);*/
+  
   if(dist_left > 30 || dist_left < 1) dist_left = 30;
   if(dist_right > 30 || dist_right < 1) dist_right = 30;
   float* stabilization_factors = new float[2];
@@ -82,12 +81,12 @@ float* stabilize(int dist_left, int dist_right){
   Serial.println(left_proportion);*/
   if(dist_left > dist_right) {
     float x = (1 / left_proportion) * right_proportion;
-    if(x < 0.75) x = 0.75;
+    if(x < 0.80) x = 0.80;
     stabilization_factors[0] = x;
     stabilization_factors[1] = 1;
   } else {
     float y = (1 / right_proportion) * left_proportion;
-    if(y < 0.75) y = 0.75;
+    if(y < 0.80) y = 0.80;
     stabilization_factors[0] = 1;
     stabilization_factors[1] = y;
   }
@@ -106,11 +105,11 @@ void loop(){
   Serial.println("motor2 factor: ");
   Serial.println(stabilization_factors[1]);*/
   //delay(1000);
-  int motor_2_speed = floor(CRUISING_SPEED * stabilization_factors[0]);
-  int motor_1_speed = floor(CRUISING_SPEED * stabilization_factors[1]);
+  MOTOR2_SPEED = floor(CRUISING_SPEED * stabilization_factors[0]);
+  MOTOR1_SPEED = floor(CRUISING_SPEED * stabilization_factors[1]);
   
-  move(0, motor_1_speed, MOTOR1_FORWARD);
-  move(1, motor_2_speed, MOTOR2_FORWARD);
+  move(0, MOTOR1_SPEED, MOTOR1_FORWARD);
+  move(1, MOTOR2_SPEED, MOTOR2_FORWARD);
   //turn(RIGHT);
   delay(25);
 }
