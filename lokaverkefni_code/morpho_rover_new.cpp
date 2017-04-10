@@ -7,8 +7,6 @@
 const int COLLISION_DISTANCE = 5; //This variables defines the distance that determines whether there is about to be a collision
 
 const int CRUISING_SPEED = 96;
-int MOTOR1_SPEED = CRUISING_SPEED;
-int MOTOR2_SPEED = CRUISING_SPEED;
 
 const boolean RIGHT = true;
 const boolean LEFT = false;
@@ -41,7 +39,7 @@ const int DIRECTION_BACKWARD = 1;
 int STBY = 10; //standby
 
 //Motor A
-int PWMA = 3; //Speed control 
+int PWMA = 3; //Speed control
 int AIN1 = 9; //Direction
 int AIN2 = 8; //Direction
 
@@ -65,7 +63,10 @@ void setup(){
 }
 
 float* stabilize(int dist_left, int dist_right){
-  
+  /*Serial.println("dist left: ");
+  Serial.println(dist_left);
+  Serial.println("dist right: ");
+  Serial.println(dist_right);*/
   if(dist_left > 30 || dist_left < 1) dist_left = 30;
   if(dist_right > 30 || dist_right < 1) dist_right = 30;
   float* stabilization_factors = new float[2];
@@ -86,7 +87,7 @@ float* stabilize(int dist_left, int dist_right){
     stabilization_factors[1] = 1;
   } else {
     float y = (1 / right_proportion) * left_proportion;
-    if(y < 0.80) y = 0.80;
+    if(y < 0.80) y = 0.80 ;
     stabilization_factors[0] = 1;
     stabilization_factors[1] = y;
   }
@@ -98,24 +99,33 @@ void loop(){
   int distance_forward = check(SIDE_FRONT);
   int distance_right = check(SIDE_RIGHT);
   int distance_left = check(SIDE_LEFT);
-  
+
   float* stabilization_factors = stabilize(distance_left, distance_right);
   /*Serial.println("motor1 factor: ");
   Serial.println(stabilization_factors[0]);
   Serial.println("motor2 factor: ");
   Serial.println(stabilization_factors[1]);*/
   //delay(1000);
-  MOTOR2_SPEED = floor(CRUISING_SPEED * stabilization_factors[0]);
-  MOTOR1_SPEED = floor(CRUISING_SPEED * stabilization_factors[1]);
-  
-  move(0, MOTOR1_SPEED, MOTOR1_FORWARD);
-  move(1, MOTOR2_SPEED, MOTOR2_FORWARD);
+  int motor_2_speed = floor(CRUISING_SPEED * stabilization_factors[0]);
+  int motor_1_speed = floor(CRUISING_SPEED * stabilization_factors[1]);
+
+  move(0, motor_1_speed, MOTOR1_FORWARD);
+  move(1, motor_2_speed, MOTOR2_FORWARD);
   //turn(RIGHT);
-  delay(25);
+  delay(1);
 }
 
-float measure( int side){
-}
+// float measure( int side){
+//   int* distance = new int[6];
+//   for (int i = 0; i < 6; i++){
+//     distance [i] = check(side);
+//   }
+//   int median;
+//   Serial.print("side ");
+//   for (int i = 0; i < 6; i++){
+//     Serial.println(distance[i]);
+//   }
+// }
 
 void move(int motor, int speed, int direction){
 //Move specific motor at speed and direction
@@ -144,13 +154,13 @@ void move(int motor, int speed, int direction){
 }
 
 void stop(){
-//enable standby  
-  digitalWrite(STBY, LOW); 
+//enable standby
+  digitalWrite(STBY, LOW);
 }
 
 /**
 * Does a left or right turn
-* 
+*
 * @param {boolean} right - contains true if you are supposed to turn right, false if you are supposed to turn left
 */
 
@@ -165,7 +175,7 @@ void turn(boolean right){
     delay(TURNING_DURATION);
     stop();
   }
-  
+
   else {
     delay(TURNING_DELAY);
     move(MOTOR1_ID,CRUISING_SPEED,MOTOR1_FORWARD);
@@ -177,7 +187,7 @@ void turn(boolean right){
 
 }
 
-void prepareForTurn(int speed){   
+void prepareForTurn(int speed){
     move(MOTOR1_ID,speed,MOTOR1_FORWARD);
     move(MOTOR2_ID,speed,MOTOR2_FORWARD);
     delay(PREPARE_DELAY);
@@ -186,7 +196,7 @@ void prepareForTurn(int speed){
 
 /**
 * Finds the best direction to take
-* 
+*
 * @param {char} side - the side you want to check for, 'f' for front, 'r' for right, 'l' for left
 * @returns {int} - the distance to an obstacle in cm
 */
@@ -202,7 +212,7 @@ char determineBestDirection(int right, int front, int left)
 
 /**
 * Checks the distance to a obstacle on a given side
-* 
+*
 * @param {char} side - the side you want to check for, '0' for front, '1' for right, '2' for left
 * @returns {int} - the distance to an obstacle in cm
 */
@@ -219,12 +229,12 @@ int check(int side)
     case SIDE_LEFT:
       volts = analogRead(sensor_left)*0.0048828125;
       break;
-    default: 
+    default:
       // if nothing else matches, do the default
       // default is optional
     break;
   }
-    
+
   int distance = 13*pow(volts, -1); // distance in cm worked out from datasheet graph
   return distance;
 }
